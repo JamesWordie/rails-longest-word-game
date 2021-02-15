@@ -16,21 +16,22 @@ class GamesController < ApplicationController
   end
 
   def score
-    guess = params[:word].upcase
-    letters = params[:letters].split
-    @included = included_letters?(guess, letters)
-    @english_word = english_word?(guess)
-    @result = ''
-    if @included
-      if @english_word
-        session_score(guess)
-        @result = "Congratulations! #{guess} is a valid English word."
-      else
-        @result = "Sorry but #{guess} does not seem to be a valid English word..."
-      end
-    else
-      @result = "Sorry but #{guess} can't be built out of #{letters}"
-    end
+    @guess = params[:word].upcase
+    @letters = params[:letters].split
+    @included = included_letters?(@guess, @letters)
+    @english_word = english_word?(@guess)
+    session_score(@guess)
+    # @result = ''
+    # if @included
+    #   if @english_word
+    #     session_score(@guess)
+    #     @result = "Congratulations! #{@guess} is a valid English word."
+    #   else
+    #     @result = "Sorry but #{@guess} does not seem to be a valid English word..."
+    #   end
+    # else
+    #   @result = "Sorry but #{@guess} can't be built out of #{@letters}"
+    # end
   end
 
   def included_letters?(guess, letters)
@@ -45,12 +46,12 @@ class GamesController < ApplicationController
   def english_word?(guess)
     url = "https://wagon-dictionary.herokuapp.com/#{guess}"
     data = JSON.parse(URI.open(url).read)
-    data['found'] == true
+    data['found']
   end
 
   def session_score(guess)
     @total_score = params[:score].to_i
-    game_score = (guess.length)**2
-    @total_score += game_score
+    @total_score += guess.length**2
+    params[:score] = @total_score
   end
 end
